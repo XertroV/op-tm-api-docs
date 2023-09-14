@@ -1,0 +1,50 @@
+@import './base.css';
+
+#app {
+  max-width: 1280px;
+  margin: 0 auto;
+  padding: 2rem;
+
+  font-weight: normal;
+}
+
+a,
+.green {
+  text-decoration: none;
+  color: hsla(160, 100%, 37%, 1);
+  transition: 0.4s;
+}
+
+@media (hover: hover) {
+  a:hover {
+    background-color: hsla(160, 100%, 37%, 0.2);
+  }
+}
+
+body {
+  height: 100vh;
+  /* overflow: hidden; */
+  /* box-sizing: border-box;
+  position: fixed;
+  padding: 0px;
+  margin: 0px;
+  left: 10px;
+  right: 10px;
+  top: 10px;
+  bottom: 10px;
+  display: grid;
+  grid-template-rows: auto 1fr; */
+}
+
+/* @media (min-width: 1024px) {
+  body {
+    display: flex;
+    place-items: center;
+  }
+
+  #app {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    padding: 0 2rem;
+  }
+} */
