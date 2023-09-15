@@ -68,7 +68,7 @@ emitter.on('closeFindTypeTab', (x) => closeFindTypeTab(x))
 emitter.on('newClassTab', cls => onNewTab({t: "cls", cls: cls as ClassDesc}))
 
 let activeClass: ClassDesc | null = null;
-watch(() => route.path, (newPath: string) => {
+const syncTabsFromRoute = () => {
     console.log('route name: ', route.name, Date.now());
     setTitleToPageTitle("");
     if (route.name == "viewClass" || route.name == "viewClassMember") {
@@ -94,7 +94,8 @@ watch(() => route.path, (newPath: string) => {
         activeClass = null;
         focusedTab.t = 'search'
     }
-})
+};
+watch(() => route.path, syncTabsFromRoute)
 
 
 // watch(() => localStorage.getItem(`cls-tabs.${getGameName()}`),
@@ -173,6 +174,7 @@ onMounted(() => {
     if (cachedTabs) {
         updateTabsFromSerialized(cachedTabs)
     }
+    syncTabsFromRoute();
 })
 
 function updateTabsFromSerialized(cachedTabs: string) {
