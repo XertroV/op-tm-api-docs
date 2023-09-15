@@ -64,7 +64,7 @@ export const regexInvalid = ref(false);
 
 export async function UpdateResults() {
     let myUpdateNonce = ++updateNonce;
-    let query = currSearch.value.toLocaleLowerCase();
+    let query = currSearch.value.toLocaleLowerCase().trim().replace(/ /g, '*');
     // console.log("query: ", query)
     const resultsLists: SearchResult[][] = [[], [], []];
     const results: Record<string, any> = {};
