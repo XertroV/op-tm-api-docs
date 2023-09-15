@@ -8,6 +8,7 @@ export default defineConfig({
   plugins: [
     vue(),
   ],
+  base: (process.env['NODE_ENV'] == "production" ? '/op-tm-api-docs/' : ''),
   server: {
     watch: {
       ignored: ['op-tm-api-docs/**']

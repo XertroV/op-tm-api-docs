@@ -2,7 +2,7 @@
 <html lang="en">
   <head>
     <meta charset="UTF-8">
-    <link rel="icon" href="/favicon.ico">
+    <link rel="icon" href="/op-tm-api-docs/favicon.ico">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>TMNext: Advanced Docs</title>
 
@@ -31,13 +31,67 @@
     </script>
     <!-- End Single Page Apps for GitHub Pages -->
 
-    <script type="module" crossorigin src="/assets/appMP4-02984981.js"></script>
-    <link rel="modulepreload" crossorigin href="/assets/main-c08ec093.js">
-    <link rel="stylesheet" href="/assets/main-bdd0025e.css">
+    <script type="module" crossorigin src="/op-tm-api-docs/assets/appMP4-322edf55.js"></script>
+    <link rel="modulepreload" crossorigin href="/op-tm-api-docs/assets/main-ee34eead.js">
+    <link rel="stylesheet" href="/op-tm-api-docs/assets/main-f169f882.css">
   </head>
   <body>
     <div id="app" class="">
-      <!-- <h1>Loading...</h1> -->
+      <style>
+/* color palette from <https://github.com/vuejs/theme> */
+:root {
+  --vt-c-white: #ffffff;
+
+  --vt-c-black: #181818;
+
+  --vt-c-text-light-1: var(--vt-c-indigo);
+  --vt-c-text-light-2: rgba(60, 60, 60, 0.66);
+  --vt-c-text-dark-1: var(--vt-c-white);
+  --vt-c-text-dark-2: rgba(235, 235, 235, 0.64);
+}
+
+/* semantic color variables for this project */
+:root {
+  --color-background: var(--vt-c-white);
+  --color-text: var(--vt-c-text-light-1);
+
+  --section-gap: 160px;
+}
+
+@media (prefers-color-scheme: dark) {
+  :root {
+    --color-background: var(--vt-c-black);
+    --color-text: var(--vt-c-text-dark-2);
+  }
+}
+
+body {
+  min-height: 100vh;
+  color: var(--color-text);
+  background: var(--color-background);
+  transition: color 0.5s, background-color 0.5s;
+  line-height: 1.6;
+  font-family: Inter, -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Oxygen, Ubuntu,
+    Cantarell, 'Fira Sans', 'Droid Sans', 'Helvetica Neue', sans-serif;
+  font-size: 15px;
+  text-rendering: optimizeLegibility;
+  -webkit-font-smoothing: antialiased;
+  -moz-osx-font-smoothing: grayscale;
+}
+
+.loading-prejs {
+  width: 100%;
+  height: 100%;
+  vertical-align: middle;
+  text-align: center;
+  flex: auto;
+  flex-direction: row;
+  align-items: center;
+}
+      </style>
+      <div id="loading-prejs">
+        <h1>Loading...</h1>
+      </div>
     </div>
     
   </body>
