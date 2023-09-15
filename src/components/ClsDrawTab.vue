@@ -31,7 +31,7 @@ const instantiableCss = computed(() => theCls.value?.instantiable ? "bg-lime-700
         <!-- Status row for class: id, instantiable, etc -->
         <div v-if="true || !isSuper" class="flex flex-row gap-2 text-base mb-3">
             <div class="bg-neutral-700 text-stone-200 font-mono px-2 text-center">0x{{ theCls.id }}</div>
-            <div class="text-stone-200 px-2 text-center font-bold font-mono" :class="instantiableCss">{{ theCls.instantiable ? 'Instantiable' : 'Uninstantiable' }}</div>
+            <div class="text-stone-200 px-2 text-center font-mono" :class="instantiableCss">{{ theCls.instantiable ? 'Instantiable' : 'Uninstantiable' }}</div>
         </div>
 
         <div v-if="theCls.docs" class="bg-neutral-700 rounded-md italic p-2 my-2">

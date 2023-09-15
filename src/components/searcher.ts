@@ -64,12 +64,15 @@ export const regexInvalid = ref(false);
 
 export async function UpdateResults() {
     let myUpdateNonce = ++updateNonce;
-    let query = currSearch.value.toLocaleLowerCase().trim().replace(/ /g, '*');
+    let query = currSearch.value.toLocaleLowerCase().trim();
     // console.log("query: ", query)
     const resultsLists: SearchResult[][] = [[], [], []];
     const results: Record<string, any> = {};
-    let hasWildcards = query.includes("*");
     let hasRegex = query.startsWith('/');
+    if (!hasRegex) {
+        query = query.replace(/ /g, '*')
+    }
+    let hasWildcards = query.includes("*");
     while (query.startsWith("*")) {
         query = query.substring(1);
     }

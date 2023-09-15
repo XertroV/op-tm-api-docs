@@ -2,7 +2,7 @@ import './assets/main.css'
 import './index.css'
 import 'vue-virtual-scroller/dist/vue-virtual-scroller.css'
 
-import { createApp } from 'vue'
+import { createApp, type App as AppT, type CreateAppFunction, createSSRApp } from 'vue'
 import App from './App.vue'
 import { ParseDataStructures, ShowOffsets } from './opJson';
 import {emitter} from '@/emitter';
@@ -20,19 +20,21 @@ const routes = [
 ];
 
 
-export function setupApp(game: GameName, opJsonFile: any, showOffsets: boolean = true) {
+export function setupApp(game: GameName, opJsonFile: any, showOffsets: boolean = true, createAppFunc: CreateAppFunction<Element> | null = null): AppT<Element> {
     setGameName(game);
     window.document.title = getWindowDefaultTitle();
     const router = VueRouter.createRouter({
+
         // history: VueRouter.createWebHashHistory(),
         history: VueRouter.createWebHistory(getUrlBase()),
         routes
     })
-    const app = createApp(App)
+    const app = (createAppFunc || createSSRApp)(App)
     app.use(VueVirtualScroller)
     app.use(router)
     app.config.globalProperties.emitter = emitter;
     app.mount('#app')
     ShowOffsets.value = showOffsets;
     setTimeout(() => ParseDataStructures(opJsonFile), 0);
+    return app;
 }

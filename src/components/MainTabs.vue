@@ -3,6 +3,7 @@
         <div class="w-1/6 mr-1.5"></div>
         <input v-model="currSearch" @input="UpdateResults" @focus="$router.push('/')" placeholder="Query (wildcards / regex supported)" class="py-1 px-2 text-white border bg-black w-1/2 rounded-lg" />
         <div v-if="regexInvalid" class="text-yellow-500 font-bold ml-2">⚠️ Invalid Regex</div>
+        <div class="text-stone-500 ml-2">Matches: {{ searchResults.length }}</div>
     </div>
     <div class="flex flex-row gap-2">
         <!-- tabs bar -->
