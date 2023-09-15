@@ -7,11 +7,11 @@ module.exports = {
     fontSize: {
       sm: '0.6rem',
       base: '0.75rem',
-      xl: '0.9375rem',
-      '2xl': '1.17225rem',
-      '3xl': '1.46475rem',
-      '4xl': '1.83075rem',
-      '5xl': '2.289rem',
+      lg: '0.9375rem',
+      'xl': '1.17225rem',
+      '2xl': '1.46475rem',
+      '3xl': '1.83075rem',
+      '4xl': '2.289rem',
     }
   },
   plugins: [],

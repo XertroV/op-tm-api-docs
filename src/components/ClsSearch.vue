@@ -1,58 +1,63 @@
 <script setup lang="ts">
 import { onMounted, ref } from "vue";
-import {ClassRegistry, AllClassNames} from "../opJson";
+import {ClassRegistry, AllClassNames, type MemberDesc, type ClassDesc, type EnumDesc, AllMemberNames, MemberToClasses, AllEnumNames, EnumToClasses, AllEnumValueNames} from "../opJson";
 
 import ClsResult from './ClsResult.vue';
+import { EnumValueToClasses } from "../opJson";
+import {UpdateResults, searchResults} from './searcher';
 
 // defineProps<{}>()
 
-const currSearch = ref("");
-const searchResults = ref([] as string[]);
-
-
-function matchQuery(name: string, query: string) {
-    let np = 0;
-    let qp = 0;
-    while (qp < query.length && np < name.length) {
-        if (query[qp] == name[np]) {
-            qp++;
-            if (qp == query.length) break;
-        }
-        np++;
-    }
-    return np < name.length && qp <= query.length;
-}
-
-
-function UpdateResults() {
-    const query = currSearch.value.toLocaleLowerCase();
-    console.log("query: ", query)
-    const resultsList: string[] = [];
-    const results: Record<string, any> = {};
-    const classNames = AllClassNames;
-    const addToResults = (n: string) => {
-        results[n] = true;
-        resultsList.push(n);
-    }
-    classNames.filter(n => n.startsWith(query)).forEach(addToResults);
-    classNames.filter(n => !results[n] && n.includes(query)).forEach(addToResults);
-    classNames.filter(n => !results[n] && matchQuery(n, query)).forEach(addToResults);
-    searchResults.value = resultsList;
-}
+const beenMounted = ref(false);
 
 onMounted(() => {
-    UpdateResults();
+    if (!beenMounted.value) {
+        beenMounted.value = true;
+        UpdateResults();
+    }
 })
 
 </script>
 
 
 <template>
-    <div class="p-1">
-        <input v-model="currSearch" @input="UpdateResults" placeholder="Search for a class" class="py-1 px-2 text-white bg-black w-1/2 rounded" />
-    </div>
-
-    <div id="results-list" class="p-1 text-left flex flex-col max-h-100 overflow-y-auto">
-        <ClsResult :cls="ClassRegistry[clsRes]" v-for="clsRes in searchResults" />
+    <div id="results-list" class="text-left m-0">
+        <div v-if="searchResults.length < 100" class="">
+            <ClsResult :res="clsRes" v-for="clsRes in searchResults" />
+        </div>
+        <!-- :item-size="32" -->
+        <!-- key-field="id" -->
+        <!--  -->
+        <RecycleScroller
+            v-else
+            class="scroller"
+            :items="searchResults"
+            :item-size="30"
+            :buffer="1000"
+            v-slot="{item, index, active}">
+            <!-- <DynamicScrollerItem
+                :item="item"
+                :active="active"
+                :size-dependencies="[]"
+                :data-index="index"
+            > -->
+                <ClsResult :res="item" />
+            <!-- </DynamicScrollerItem> -->
+        </RecycleScroller>
     </div>
 </template>
+
+<style scoped>
+.scroller {
+  height: calc(100vh - 10rem);
+  /* height: 100%; */
+  /* max-height: 100%; */
+}
+
+/* .user {
+  height: 32%;
+  padding: 0 12px;
+  display: flex;
+  align-items: center;
+} */
+</style>

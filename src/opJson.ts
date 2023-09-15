@@ -1,25 +1,44 @@
 import { ref } from 'vue';
-import OpJson from './OpenplanetNext_with_offsets.json';
+import type { SearchResult } from './components/searcher';
 
-export default OpJson;
+// export default OpJson;
 
 export type _ClassRegistry = Record<string, ClassDesc>;
+export type _ResultsLookup = Record<string, SearchResult[]>;
+export type _SeenTracker = Record<string, boolean>;
+
 export const ClassRegistry: _ClassRegistry = {};
+export const MemberToClasses: _ResultsLookup = {};
+const EnumToClassesSeen: _SeenTracker = {};
+export const EnumToClasses: _ResultsLookup = {};
+export const EnumValueToClasses: _ResultsLookup = {};
 export const NamespaceRegistry: Record<string, _ClassRegistry> = {};
 export const AllClassNames = [] as string[];
+export const AllClassIDs = [] as string[];
+export const AllMemberNames = [] as string[];
+export const AllEnumNames = [] as string[];
+export const AllEnumValueNames = [] as string[];
 export const Versions: {game: string, op: string} = {game: "?", op: "?"};
 
 export const JsonIsLoaded = ref(false);
+export const ShowOffsets = ref(true);
 
 // export function JsonIsLoaded() {
 //     return _jsonIsLoaded;
 // }
 
-export function ParseDataStructures() {
+const onLoadedCbs: (() => void)[] = [];
+export function OnJsonParsedCallback(cb: () => void) {
+    if (JsonIsLoaded.value) cb();
+    else onLoadedCbs.push(cb);
+}
+
+
+export function ParseDataStructures(opJsonFile: any) {
     if (JsonIsLoaded.value) return;
-    Versions.game = OpJson['mp'];
-    Versions.op = OpJson['op'];
-    const nss: Record<string, any> = OpJson.ns;
+    Versions.game = opJsonFile['mp'];
+    Versions.op = opJsonFile['op'];
+    const nss: Record<string, any> = opJsonFile.ns;
     const namespaces = Object.keys(nss);
     namespaces.forEach(nsName => {
         let objsInNs = nss[nsName];
@@ -37,7 +56,6 @@ export function ParseDataStructures() {
             AddClass(nsName, clsName, clsBase, clsCanCreate, clsMembers, clsId, clsEnums, clsFExt, clsDocs);
         })
     })
-    AllClassNames.sort();
     // populate base classes
     AllClassNames.forEach(n => {
         let cls = ClassRegistry[n];
@@ -46,7 +64,55 @@ export function ParseDataStructures() {
             cls.baseClass = clsBase;
         }
     });
-    setTimeout(() => JsonIsLoaded.value = true, 500);
+
+    const AddEnumToIndexes = (cls: ClassDesc, e: EnumDesc) => {
+        if (!EnumToClasses[e.nameLower]) {
+            EnumToClasses[e.nameLower] = []
+        }
+        let id = cls.name + "::" + e.name;
+        if (EnumToClassesSeen[id]) return;
+        EnumToClassesSeen[id] = true;
+        EnumToClasses[e.nameLower].push({id, cls, enumName: e.name})
+        // console.log(e)
+        e.valuesLower.forEach((v, i) => {
+            if (!EnumValueToClasses[v]) {
+                EnumValueToClasses[v] = []
+            }
+            EnumValueToClasses[v].push({id: cls.name + "::" + e.name + "::" + e.values[i], cls, enumName: e.name, enumValue: e.values[i]})
+        })
+    }
+
+    // populate member/enum registries -- do after base class so we can
+    AllClassNames.forEach(n => {
+        let cls: ClassDesc | null = ClassRegistry[n];
+        let origCls = cls;
+        while (cls) {
+            cls.members.forEach((m) => {
+                if (!MemberToClasses[m.nameLower]) {
+                    MemberToClasses[m.nameLower] = []
+                }
+                MemberToClasses[m.nameLower].push({id: origCls.name + "::" + m.name, cls: origCls, member: m})
+                if (m.e) AddEnumToIndexes(origCls, m.e)
+            })
+            cls.enums.forEach(e => AddEnumToIndexes(origCls, e))
+            cls = cls.baseClass;
+        }
+    });
+
+    AllClassNames.sort();
+
+    // finally, add all class IDs to class names
+    AllClassIDs.push(...AllClassNames.map(n => ClassRegistry[n].id.toLocaleLowerCase()))
+
+    AllMemberNames.unshift(...Object.keys(MemberToClasses));
+    AllMemberNames.sort();
+    AllEnumNames.unshift(...Object.keys(EnumToClasses));
+    AllEnumNames.sort();
+    AllEnumValueNames.unshift(...Object.keys(EnumValueToClasses));
+    AllEnumValueNames.sort();
+
+    onLoadedCbs.forEach(f => f())
+    JsonIsLoaded.value = true
 }
 
 
@@ -76,12 +142,14 @@ function CheckDocsKeys(cls: object) {
 export type ClassDesc = {
     ns: string,
     name: string,
+    nameLower: string,
     base: string,
     baseClass: ClassDesc | null,
     instantiable: boolean,
     members: MemberDesc[],
     membersByOffset: MemberDesc[],
     id: string,
+    idLower: string,
     enums: EnumDesc[],
     fileExt: string | null,
     docs: string | null,
@@ -95,24 +163,30 @@ export type MemberDesc = {
     isConst: boolean,
     offset: number,
     offsetStr: String,
-    e: EnumDesc | null,
+    e?: EnumDesc,
     type: string,
     m: boolean,
     i: number,
     name: string,
-    range: [number, number] | null,
-    args: string | null,
-    returnType: string | null,
+    nameLower: string,
+    range?: [number, number],
+    args?: string,
+    returnType: string,
     isFunction: boolean,
-    isProc: boolean,
+    cls: ClassDesc,
+    // isProc: boolean,
 };
 
 export type EnumDesc = {
     values: string[],
+    valuesLower: string[],
     name: string,
+    nameLower: string,
 };
 
 function AddClass(ns: string, name: string, base: string, instantiable: boolean, clsMembers: object[], id: string, clsEnums: object[], fileExt: string | null, clsDocs: any | null) {
+    if (name == "Bool" || name == "Int") return;
+
     let members: MemberDesc[] = GenClassMembers(clsMembers, clsDocs?.o);
     let enums: EnumDesc[] = GenClassEnums(clsEnums);
 
@@ -140,24 +214,36 @@ function AddClass(ns: string, name: string, base: string, instantiable: boolean,
         nEnums, nProps, nFuncs,
         baseClass: null,
         membersByOffset,
+        idLower: id.toLocaleLowerCase(),
+        nameLower: name.toLocaleLowerCase(),
     };
 
+    members.forEach(m => m.cls = cls)
+
     ClassRegistry[name] = cls;
-    ClassRegistry[name.toLocaleLowerCase()] = cls;
+    ClassRegistry[id] = cls;
+    ClassRegistry[cls.nameLower] = cls;
+    AllClassNames.push(cls.nameLower);
+
     let nsClss = NamespaceRegistry[ns] || {};
     nsClss[name] = cls;
-    nsClss[name.toLocaleLowerCase()] = cls;
+    nsClss[cls.nameLower] = cls;
     NamespaceRegistry[ns] = nsClss;
-    AllClassNames.push(name.toLocaleLowerCase());
 }
 
 function GenClassEnums(enums: any[]): EnumDesc[] {
-    return enums.map(e =>
-        // (CheckEnumKeys(e) && false) ||
-        ({
-        values: e.v,
-        name: e.n
-    }))
+    return enums.map(e => {
+        // some enums have namespaces that we don't need or want
+            const nameParts: string[] = e.n.split("::")
+            const name = nameParts[nameParts.length - 1]
+            // (CheckEnumKeys(e) && false) ||
+            return ({
+            values: e.v,
+            valuesLower: e.v.map((v: string) => v.toLocaleLowerCase()),
+            name,
+            nameLower: name.toLocaleLowerCase()
+        })
+    })
 }
 
 function CheckMemberKeys(cls: object) {
@@ -171,14 +257,18 @@ function GenClassMembers(clsMembers: any[], docs: any[]): MemberDesc[] {
         let name = m.n;
         let i = m.i;
         let isFunction = typeof(m.t) == "number";
-        let returnType = m.r;
+        let returnType = m.r || 'void';
         let args = m.a;
         let type = isFunction ? `${returnType} (${args})` : m.t;
-        let isProc = isFunction && m.t == 1;
+        // let isProc = isFunction && m.t == 1;
         let range = m.r;
         let offset = m.o;
         let offsetStr = m.o < 65535 ? "0x" + m.o.toString(16) : "-";
-        let e = m.e && GenClassEnums([m.e]);
+        let e = m.e && GenClassEnums([m.e])[0];
+
+        if (ShowOffsets.value && typeof(offset) != "number") {
+            ShowOffsets.value = false;
+        }
 
         // what is .m??
         // if (m.m != 1 && isFunction) {
@@ -188,7 +278,9 @@ function GenClassMembers(clsMembers: any[], docs: any[]): MemberDesc[] {
         // CheckMemberKeys(m);
 
         return {
-            doc, isConst, name, i, type, isFunction, args, returnType, offset, e, m: m.m == 1, range, isProc, offsetStr
+            doc, isConst, name, i, type, isFunction, args, returnType, offset, e, m: m.m == 1, range, offsetStr,
+            cls: {} as ClassDesc,
+            nameLower: name.toLocaleLowerCase(),
         };
     });
 }

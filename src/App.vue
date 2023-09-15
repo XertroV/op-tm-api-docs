@@ -4,17 +4,14 @@
     </div>
   </header> -->
 
-  <main class="h-100">
-    <HelloWorld msg="TM Next Advanced Docs" />
+  <main class="">
+    <HelloWorld :msg="getPrettyGameName() + ' Advanced Docs'" />
   </main>
 </template>
 
 <script setup lang="ts">
 import HelloWorld from './components/HelloWorld.vue'
-import TheWelcome from './components/TheWelcome.vue'
-import OpJson from "./opJson";
-
-
+import { getPrettyGameName } from './gameVariant';
 
 </script>
 
