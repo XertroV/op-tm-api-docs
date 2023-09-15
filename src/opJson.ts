@@ -263,11 +263,13 @@ function GenClassMembers(clsMembers: any[], docs: any[]): MemberDesc[] {
         // let isProc = isFunction && m.t == 1;
         let range = m.r;
         let offset = m.o;
-        let offsetStr = m.o < 65535 ? "0x" + m.o.toString(16) : "-";
+        let offsetStr = m.o === undefined ? "?" : m.o < 65535 ? "0x" + m.o.toString(16) : "-";
         let e = m.e && GenClassEnums([m.e])[0];
 
         if (ShowOffsets.value && typeof(offset) != "number") {
-            ShowOffsets.value = false;
+            console.warn('Missing offset: ', m);
+            offset = -1;
+            // ShowOffsets.value = false;
         }
 
         // what is .m??
