@@ -22,6 +22,8 @@ export default defineConfig({
         appNext: fileURLToPath(new URL('./next/index.html', import.meta.url)),
         appTurbo: fileURLToPath(new URL('./turbo/index.html', import.meta.url)),
         appMP4: fileURLToPath(new URL('./mp4/index.html', import.meta.url)),
+        appIndex: fileURLToPath(new URL('./index.html', import.meta.url)),
+        app404: fileURLToPath(new URL('./404.html', import.meta.url)),
       }
     }
   },
