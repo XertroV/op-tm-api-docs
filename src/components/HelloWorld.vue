@@ -11,7 +11,12 @@ defineProps<{
 
 <template>
   <div class="greetings mb-4 flex flex-row justify-between">
-    <h2 class="green">{{ msg }}</h2>
+    <h2 class="green"><span class="inline-block flex flex-row items-baseline gap-4">{{ msg }}
+        <a class="text-lg" href="/op-tm-api-docs/next/">TM2020</a>
+        <a class="text-lg" href="/op-tm-api-docs/mp4/">MP4</a>
+        <a class="text-lg" href="/op-tm-api-docs/turbo/">Turbo</a>
+      </span>
+    </h2>
     <div class="text-right">
       <h3 v-if="!JsonIsLoaded">Loading...</h3>
       <div v-else>
