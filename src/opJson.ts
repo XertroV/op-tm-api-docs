@@ -160,6 +160,8 @@ export type ClassDesc = {
 
 export type MemberDesc = {
     doc: [number, string, number, number] | undefined;
+    docFlagDeprecation: boolean,
+    docFlagInfo: boolean,
     isConst: boolean,
     offset: number,
     offsetStr: String,
@@ -210,7 +212,7 @@ function AddClass(ns: string, name: string, base: string, instantiable: boolean,
         id,
         enums,
         fileExt,
-        docs: clsDocs?.d,
+        docs: clsDocs?.d?.replace('<br/>', '\n'),
         nEnums, nProps, nFuncs,
         baseClass: null,
         membersByOffset,
@@ -265,9 +267,13 @@ function GenClassMembers(clsMembers: any[], docs: any[]): MemberDesc[] {
         let offset = m.o;
         let offsetStr = m.o === undefined ? "?" : m.o < 65535 ? "0x" + m.o.toString(16) : "-";
         let e = m.e && GenClassEnums([m.e])[0];
+        let docFlagDeprecation = doc?.[2] === 1;
+        let docFlagInfo = doc?.[2] === 0 && doc?.[3] === 0;
 
         if (ShowOffsets.value && typeof(offset) != "number") {
-            console.warn('Missing offset: ', m);
+            if (import.meta.env.DEV) {
+                // console.warn('Missing offset: ', m);
+            }
             offset = -1;
             // ShowOffsets.value = false;
         }
@@ -283,6 +289,8 @@ function GenClassMembers(clsMembers: any[], docs: any[]): MemberDesc[] {
             doc, isConst, name, i, type, isFunction, args, returnType, offset, e, m: m.m == 1, range, offsetStr,
             cls: {} as ClassDesc,
             nameLower: name.toLocaleLowerCase(),
+            docFlagDeprecation,
+            docFlagInfo
         };
     });
 }

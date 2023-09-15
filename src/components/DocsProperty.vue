@@ -32,7 +32,7 @@ function toggleCollapse() {
                 </span>
             </div>
             <div v-if="member.doc" class="ml-2 m-1 rounded bg-gray-600 px-2 pb-0.5 text-neutral-300 italic">
-                {{ member.doc[1] }}
+                <div v-html="member.doc[1]" class="inline-block"></div>
                 (Flags: {{ member.doc.slice(2) }})
             </div>
             <DocsProperty :cls="cls" v-if="member.e" :enum-desc="member.e" />

@@ -14,23 +14,15 @@
 
         <!-- tab body -->
 
-        <div class="pl-2 center w-5/6 flex flex-col h-full scroller overflow-y-auto">
-            <!-- scrollable h-full  -->
-            <!-- <div class="overflow-auto"> -->
-
-                <!-- <KeepAlive>
-                    <ClsSearch v-if="focusedTab.t == 'search'" />
-                    <div v-else-if="focusedTab.t == 'cls' && clsTabs[focusedTab.ix]" class="overflow-y-auto scroller">
-                        <ClsDrawTab :cls="clsTabs[focusedTab.ix]" />
-                    </div>
-                </KeepAlive> -->
+        <div class="flex flex-col w-5/6 pl-2">
+            <div v-if="currentPageTitle" class="text-xl font-bold">{{ currentPageTitle }}</div>
+            <div class="center flex flex-col h-full scroller overflow-y-auto rounded-lg">
                 <router-view v-slot="{ Component }">
-                    <!-- include="ClsSearch" -->
                     <KeepAlive>
                         <component :is="Component" />
                     </KeepAlive>
                 </router-view>
-            <!-- </div> -->
+            </div>
         </div>
     </div>
 </template>
@@ -44,7 +36,7 @@ import TabLabel from "./TabLabel.vue";
 import { ref, reactive, onMounted, defineProps, computed, getCurrentInstance, watch } from 'vue';
 import type { Ref } from 'vue';
 import {emitter} from '@/emitter';
-import { setTitleToPageTitle } from '../gameVariant'
+import { setTitleToPageTitle, currentPageTitle } from '../gameVariant'
 
 import {UpdateResults, searchResults, currSearch, regexInvalid} from './searcher';
 

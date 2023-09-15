@@ -33,6 +33,8 @@ export function setupApp(game: GameName, opJsonFile: any, showOffsets: boolean =
     app.use(VueVirtualScroller)
     app.use(router)
     app.config.globalProperties.emitter = emitter;
+    const appEl = document.getElementById("app") as HTMLElement;
+    appEl.innerHTML = "";
     app.mount('#app')
     ShowOffsets.value = showOffsets;
     setTimeout(() => ParseDataStructures(opJsonFile), 0);

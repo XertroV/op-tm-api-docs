@@ -4,6 +4,8 @@ export type GameName = "next" | "mp4" | "turbo";
 
 export const gameName: Ref<GameName> = ref("next");
 
+export const currentPageTitle: Ref<string> = ref("");
+
 export function setGameName(name: GameName) {
     gameName.value = name;
 }
@@ -36,4 +38,5 @@ export function getPageTitle(pageName: string) {
 
 export function setTitleToPageTitle(pageName: string) {
     window.document.title = pageName ? getPageTitle(pageName) : getWindowDefaultTitle()
+    currentPageTitle.value = pageName
 }

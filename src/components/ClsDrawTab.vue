@@ -26,7 +26,8 @@ const instantiableCss = computed(() => theCls.value?.instantiable ? "bg-lime-700
 
 
 <template>
-    <h3 class="text-xl font-semibold mb-2">{{ fmtClsName(theCls) }}</h3>
+    <h3 v-if="isSuper" class="text-xl font-semibold mb-2">{{ fmtClsName(theCls) }}</h3>
+    <div v-else class="mb-0.5"></div>
     <div class="ml-0" v-if="theCls">
         <!-- Status row for class: id, instantiable, etc -->
         <div v-if="true || !isSuper" class="flex flex-row gap-2 text-base mb-3">
