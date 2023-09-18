@@ -9,7 +9,7 @@ const router = useRouter(); const route = useRoute();
 
 const props = defineProps<{res: SearchResult}>()
 
-const resType = computed(() => !!props.res.member ? "M" : !!props.res.enumName || !!props.res.enumValue ? "E" : "C")
+const resType = computed(() => !!props.res.member ? (props.res.isValue ? "V" : "M") : !!props.res.enumName || !!props.res.enumValue ? "E" : "C")
 
 function onClickResult({cls, member, enumName, enumValue}: SearchResult) {
     // emitter.emit('newClassTab', cls)
@@ -38,12 +38,13 @@ const widthClass = computed(() => props.res.member || props.res.enumName ? "" : 
                 <span class="mt-0.5 inline-block text-center w-4 py-0.5 bg-orange-700" v-if="resType == 'C'" title="Class">C</span>
                 <span class="mt-0.5 inline-block text-center w-4 py-0.5 bg-lime-600" v-else-if="resType == 'E'" title="Enum">E</span>
                 <span class="mt-0.5 inline-block text-center w-4 py-0.5 bg-cyan-600" v-else-if="resType == 'M'" title="Member">M</span>
+                <span class="mt-0.5 inline-block text-center w-4 py-0.5 bg-purple-600" v-else-if="resType == 'V'" title="Type / Return Type">V</span>
                 &nbsp;
             </div>
             <span class="text-base font-mono h-full align-bottom text-stone-400 bg-stone-800 w-16 pt-0.5 text-right mr-1">{{ res.cls.id }}&nbsp;</span>
             <span class="font-semibold" v-if="resType == 'C'">{{ res.cls.name }}</span>
             <span class="font-semibold" v-else-if="resType == 'E'"><span class="name-base text-neutral-400">{{ getEnumBase(res) }}::</span>{{ getEnumTerm(res) }}</span>
-            <span class="whitespace-collapse font-semibold truncate" v-else-if="resType == 'M'">
+            <span class="whitespace-collapse font-semibold truncate" v-else-if="resType == 'M' || resType == 'V'">
                 <span class="doc-property-type">{{ res.member?.isFunction ? res.member.returnType : res.member?.type }}</span>
                 <span>&nbsp;</span>
                 <span class="name-base text-neutral-400">{{ res.cls.name }}::</span>{{ res.member?.name }}<span v-if="res.member?.isFunction">({{ res.member.args }})</span>

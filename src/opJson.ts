@@ -12,12 +12,14 @@ export const MemberToClasses: _ResultsLookup = {};
 const EnumToClassesSeen: _SeenTracker = {};
 export const EnumToClasses: _ResultsLookup = {};
 export const EnumValueToClasses: _ResultsLookup = {};
+export const ReturnTypesToSR: _ResultsLookup = {};
 export const NamespaceRegistry: Record<string, _ClassRegistry> = {};
 export const AllClassNames = [] as string[];
 export const AllClassIDs = [] as string[];
 export const AllMemberNames = [] as string[];
 export const AllEnumNames = [] as string[];
 export const AllEnumValueNames = [] as string[];
+export const AllReturnTypeNames = [] as string[];
 export const Versions: {game: string, op: string} = {game: "?", op: "?"};
 
 export const JsonIsLoaded = ref(false);
@@ -65,6 +67,17 @@ export function ParseDataStructures(opJsonFile: any) {
         }
     });
 
+    const AddReturnTypeToIndexes = (cls: ClassDesc, m: MemberDesc) => {
+        let ix = m.isFunction ? m.returnType.toLocaleLowerCase() : m.type.toLocaleLowerCase();
+        if (!ReturnTypesToSR[ix]) {
+            ReturnTypesToSR[ix] = [];
+        }
+        let id = cls.name + "::" + m.name + (m.isFunction ? "(...)->" : ".") + m.returnType;
+        if (EnumToClassesSeen[id]) return;
+        EnumToClassesSeen[id] = true;
+        ReturnTypesToSR[ix].push({id, cls, member: m, isValue: true})
+    }
+
     const AddEnumToIndexes = (cls: ClassDesc, e: EnumDesc) => {
         if (!EnumToClasses[e.nameLower]) {
             EnumToClasses[e.nameLower] = []
@@ -93,6 +106,8 @@ export function ParseDataStructures(opJsonFile: any) {
                 }
                 MemberToClasses[m.nameLower].push({id: origCls.name + "::" + m.name, cls: origCls, member: m})
                 if (m.e) AddEnumToIndexes(origCls, m.e)
+                // both return types of functions and values of properties
+                AddReturnTypeToIndexes(origCls, m)
             })
             cls.enums.forEach(e => AddEnumToIndexes(origCls, e))
             cls = cls.baseClass;
@@ -110,6 +125,8 @@ export function ParseDataStructures(opJsonFile: any) {
     AllEnumNames.sort();
     AllEnumValueNames.unshift(...Object.keys(EnumValueToClasses));
     AllEnumValueNames.sort();
+    AllReturnTypeNames.unshift(...Object.keys(ReturnTypesToSR));
+    AllReturnTypeNames.sort();
 
     onLoadedCbs.forEach(f => f())
     JsonIsLoaded.value = true

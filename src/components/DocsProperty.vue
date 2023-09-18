@@ -31,8 +31,10 @@ function toggleCollapse() {
                 <span>&nbsp;{{ member.name }}<span v-if="member.isFunction">({{ member.args }})</span>
                 </span>
             </div>
-            <div v-if="member.doc" class="ml-2 m-1 rounded bg-gray-600 px-2 pb-0.5 text-neutral-300 italic">
-                <div v-html="member.doc[1]" class="inline-block"></div>
+            <div v-if="member.doc" class="ml-2 m-1 rounded bg-gray-600 px-2 pb-0.5 text-neutral-300">
+                <span class="inline-block text-sky-500 text-base bg-sky-900 px-1 mr-1" v-if="member.doc[2] === 0">ℹ️ Info</span>
+                <span class="inline-block text-yellow-500 text-base bg-yellow-900 px-1 mr-1" v-if="member.doc[2] === 1">⚠️ Warning</span>
+                <span v-html="member.doc[1]" class="italic"></span>
                 (Flags: {{ member.doc.slice(2) }})
             </div>
             <DocsProperty :cls="cls" v-if="member.e" :enum-desc="member.e" />
