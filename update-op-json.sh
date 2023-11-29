@@ -9,4 +9,8 @@ echo "DEST: $DESTFILE"
 cp $HOME/OpenplanetNext/OpenplanetNext.json_with_offsets.json $DESTFILE
 cp $DESTFILE src/OpenplanetNext.json
 
+npm run build-only
 
+git add dist
+git add $DESTFILE
+git add src/OpenplanetNext.json
