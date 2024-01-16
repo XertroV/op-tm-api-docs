@@ -27,6 +27,6 @@ const genPage = (html: string) => {
 }
 
 
-const nextApp = setupApp('next', OpJsonNext, false) //, createSSRApp)
-const mp4App = setupApp('mp4', OpJson4, false) //, createSSRApp)
-const turboApp = setupApp('turbo', OpJsonTurbo, false) //, createSSRApp)
+const nextApp = setupApp('next', OpJsonNext, true) //, createSSRApp)
+const mp4App = setupApp('mp4', OpJson4, true) //, createSSRApp)
+const turboApp = setupApp('turbo', OpJsonTurbo, true) //, createSSRApp)
