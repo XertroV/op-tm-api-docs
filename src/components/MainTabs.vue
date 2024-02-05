@@ -82,7 +82,7 @@ const syncTabsFromRoute = () => {
         activeClass = cls;
         focusedTab.t = 'cls'
         focusedTab.ix = match;
-        setTitleToPageTitle(cls.name)
+        setTitleToPageTitle(`${cls.ns}::${cls.name}`)
     } else if (route.path == "/") {
         activeClass = null;
         focusedTab.t = 'search'

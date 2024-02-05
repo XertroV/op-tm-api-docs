@@ -4,20 +4,20 @@ import {ClassRegistry, AllClassNames, type ClassDesc, ShowOffsets} from "../opJs
 import DocsSection from './DocsSection.vue'
 import DocsProperty from './DocsProperty.vue'
 
-import { useRouter, useRoute } from 'vue-router'
+import { useRouter, useRoute, RouterLink } from 'vue-router'
 const router = useRouter(); const route = useRoute();
 
 const props = defineProps<{cls?: ClassDesc, isSuper?: boolean}>()
 
-function fmtClsName(cls: ClassDesc | null) {
-    if (!cls) return `Class not found: ${route.params.name || '(No class name provided)'}`
-    let name = `${cls.ns}::${cls.name}`;
-    if (props.isSuper) {
-        name = "Inherits: " + name;
-    }
-    // name += `  ( Bytes)`;
-    return name;
-}
+// function fmtClsName(cls: ClassDesc | null) {
+//     if (!cls) return `Class not found: ${route.params.name || '(No class name provided)'}`
+//     let name = `${cls.ns}::${cls.name}`;
+//     if (props.isSuper) {
+//         // return new RouterLink({to: '/' + cls.name, class: "doc-property-type"});
+//     }
+//     // name += `  ( Bytes)`;
+//     return name;
+// }
 
 const theCls = computed(() => props.cls || (route.params.name ? ClassRegistry[route.params.name as string] : null))
 
@@ -36,7 +36,9 @@ function toggleIbCollapse() {
 
 
 <template>
-    <h3 v-if="isSuper" class="text-xl font-semibold mb-2">{{ fmtClsName(theCls) }}</h3>
+    <h3 v-if="isSuper" class="text-xl font-semibold mb-2">
+        Inherits: {{theCls?.ns}}::<router-link :to="'/' + theCls?.name" class="doc-property-type">{{ theCls?.name }}</router-link>
+    </h3>
     <div v-else class="mb-0.5">
         <div class="ml-2 m-1 rounded bg-gray-600 px-2 pb-0.5 text-base text-neutral-200">
             <div class="text-lg cursor-pointer select-none" @click="toggleIbCollapse()">Inherited By {{ theCls?.superClasses.length }} classes <span class="text-neutral-400 font-bold font-mono">{{ ibCollapsedSign }}</span></div>
@@ -54,7 +56,7 @@ function toggleIbCollapse() {
         <div v-if="true || !isSuper" class="flex flex-row gap-2 text-base mb-3">
             <div class="bg-neutral-700 text-stone-200 font-mono px-2 text-center">0x{{ theCls.id }}</div>
             <div class="text-stone-200 px-2 text-center font-mono" :class="instantiableCss">{{ theCls.instantiable ? 'Instantiable' : 'Uninstantiable' }}</div>
-            <div v-if="ShowOffsets" class="text-base font-mono inline-block align-middle align-[1px]">Size (B): <span>{{ theCls?.sizeStr }}</span> = {{ theCls?.size }}</div>
+            <div v-if="ShowOffsets && theCls?.sizeStr != '?'" class="text-base font-mono inline-block align-middle align-[1px]">Size (B): <span>{{ theCls?.sizeStr }}</span> = {{ theCls?.size }}</div>
         </div>
 
         <div v-if="theCls.docs" class="bg-neutral-700 rounded-md italic p-2 my-2">
