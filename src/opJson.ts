@@ -54,8 +54,9 @@ export function ParseDataStructures(opJsonFile: any) {
             let clsEnums = cls['e'] || [];
             let clsFExt = cls['f'];
             let clsDocs = cls['d'];
+            let clsSize = cls['sz'] || -1;
             // CheckClassKeys(cls);
-            AddClass(nsName, clsName, clsBase, clsCanCreate, clsMembers, clsId, clsEnums, clsFExt, clsDocs);
+            AddClass(nsName, clsName, clsBase, clsCanCreate, clsMembers, clsId, clsEnums, clsFExt, clsDocs, clsSize);
         })
     })
     // populate base classes
@@ -64,6 +65,7 @@ export function ParseDataStructures(opJsonFile: any) {
         if (cls.base) {
             let clsBase = ClassRegistry[cls.base];
             cls.baseClass = clsBase;
+            if (clsBase) clsBase.superClasses.push(cls);
         }
     });
 
@@ -160,8 +162,11 @@ export type ClassDesc = {
     ns: string,
     name: string,
     nameLower: string,
+    size: number,
+    sizeStr: String,
     base: string,
     baseClass: ClassDesc | null,
+    superClasses: ClassDesc[],
     instantiable: boolean,
     members: MemberDesc[],
     membersByOffset: MemberDesc[],
@@ -203,7 +208,7 @@ export type EnumDesc = {
     nameLower: string,
 };
 
-function AddClass(ns: string, name: string, base: string, instantiable: boolean, clsMembers: object[], id: string, clsEnums: object[], fileExt: string | null, clsDocs: any | null) {
+function AddClass(ns: string, name: string, base: string, instantiable: boolean, clsMembers: object[], id: string, clsEnums: object[], fileExt: string | null, clsDocs: any | null, clsSize: number) {
     if (name == "Bool" || name == "Int") return;
 
     let members: MemberDesc[] = GenClassMembers(clsMembers, clsDocs?.o);
@@ -218,12 +223,16 @@ function AddClass(ns: string, name: string, base: string, instantiable: boolean,
         return c1.offset - c2.offset;
     })
 
+    let size = clsSize;
+    let sizeStr = size === undefined ? "?" : 0 < size && size < (65535*16) ? "0x" + size.toString(16) : "?";
+
     // if (clsDocs) CheckDocsKeys(clsDocs);
 
     let cls: ClassDesc = {
         ns,
         name,
         base,
+        size, sizeStr,
         instantiable,
         members,
         id,
@@ -232,6 +241,7 @@ function AddClass(ns: string, name: string, base: string, instantiable: boolean,
         docs: clsDocs?.d?.replace('<br/>', '\n'),
         nEnums, nProps, nFuncs,
         baseClass: null,
+        superClasses: [],
         membersByOffset,
         idLower: id.toLocaleLowerCase(),
         nameLower: name.toLocaleLowerCase(),
