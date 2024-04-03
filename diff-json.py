@@ -165,8 +165,8 @@ if __name__ == "__main__":
     # differences = compare_versions(test1, test2)
     # print_differences(differences)
     # Load two JSON documents (replace 'file1.json' and 'file2.json' with the actual file paths)
-    json1 = load_json('op-20240110.json')
-    json2 = load_json('op-20240226.json')
+    json1 = load_json('op-20240226.json')
+    json2 = load_json('op-2024-03-20.json')
 
     # Compare the JSON documents
     differences = compare_versions(json1, json2)
