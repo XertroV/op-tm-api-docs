@@ -1,5 +1,8 @@
+#!/usr/bin/env python
+
 from dataclasses import dataclass
 import json
+import sys
 
 # Define a dataclass to store differences
 @dataclass
@@ -7,6 +10,17 @@ class Difference:
     path: str
     value1: any
     value2: any
+
+    def value_str(self, value):
+        if isinstance(value, int):
+            return f"0x{value:x} ({value})"
+        return str(value)
+
+    def value1str(self):
+        return self.value_str(self.value1)
+
+    def value2str(self):
+        return self.value_str(self.value2)
 
 # structure:
 # { ns: { [Name]: { [Type] : { i: str, m: [ { n: str, ..props } ], ..props } } }
@@ -135,7 +149,7 @@ def load_json(file_path):
 
 def print_differences(differences: list[Difference]):
     for difference in differences:
-        print(f"Path: {difference.path}, \t\t{difference.value1}\t-> \t{difference.value2}")
+        print(f"Path: {difference.path}, \t\t{difference.value1str()}\t-> \t{difference.value2str()}")
 
 
 test1 = {
@@ -165,8 +179,11 @@ if __name__ == "__main__":
     # differences = compare_versions(test1, test2)
     # print_differences(differences)
     # Load two JSON documents (replace 'file1.json' and 'file2.json' with the actual file paths)
-    json1 = load_json('op-20240226.json')
-    json2 = load_json('op-2024-03-20.json')
+    # json1 = load_json('op-2024-03-20.json')
+    # json2 = load_json('op-2024-04-12.json')
+    # json1 = load_json('op-2024-04-06.json')
+    json1 = load_json(sys.argv[1])
+    json2 = load_json(sys.argv[2])
 
     # Compare the JSON documents
     differences = compare_versions(json1, json2)
